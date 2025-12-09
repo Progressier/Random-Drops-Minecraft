@@ -2,11 +2,13 @@ package net.quiltmc.users.malythist.randomdrops;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.SpawnEggItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -19,6 +21,7 @@ public class RandomDropManager {
 	private boolean active = false;
 
 	private final Map<Identifier, LootMapping> blockMappings = new HashMap<>();
+	private final Set<Item> usedItems = new HashSet<>();
 
 	private List<Item> itemPool = Collections.emptyList();
 	private final Random random = new Random();
@@ -33,23 +36,57 @@ public class RandomDropManager {
 	public void initItemPool() {
 		this.itemPool = Registries.ITEM.stream()
 			.filter(item -> item != Items.AIR)
+			.filter(this::isAllowedItem)
 			.toList();
 
 		RandomDropsMod.LOGGER.info("[{}] item pool size: {}", RandomDropsMod.MOD_ID, itemPool.size());
 	}
 
-	/**
-	 * Вызывается из BEFORE-ивента.
-	 * Возвращает:
-	 *  true  -> позволить ванилле ломать и дропать
-	 *  false -> мы всё сделали сами, ванилле делать нечего
-	 */
-	public boolean onBlockBreak(ServerWorld world, BlockPos pos, BlockState state, PlayerEntity player) {
+	private boolean isAllowedItem(Item item) {
+		if (item instanceof SpawnEggItem) return false;
+
+		if (item == Items.DEBUG_STICK) return false;
+
+		Block block = Block.getBlockFromItem(item);
+		if (block != Blocks.AIR) {
+
+			if (block == Blocks.COMMAND_BLOCK
+				|| block == Blocks.CHAIN_COMMAND_BLOCK
+				|| block == Blocks.REPEATING_COMMAND_BLOCK) {
+				return false;
+			}
+
+			if (block == Blocks.BARRIER
+				|| block == Blocks.STRUCTURE_BLOCK
+				|| block == Blocks.BEDROCK
+				|| block == Blocks.JIGSAW
+				|| block == Blocks.STRUCTURE_VOID) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public boolean onBlockBreak(
+		ServerWorld world,
+		BlockPos pos,
+		BlockState state,
+		PlayerEntity player
+	) {
 		if (!active) {
 			return true;
 		}
 
+		if (state.isAir()) {
+			return true;
+		}
+
 		Block block = state.getBlock();
+		if (block == Blocks.FIRE || block == Blocks.SOUL_FIRE) {
+			return true;
+		}
+
 		Identifier blockId = Registries.BLOCK.getId(block);
 		LootMapping mapping = blockMappings.computeIfAbsent(blockId, id -> createRandomLoot());
 		world.breakBlock(pos, false, player);
@@ -76,7 +113,16 @@ public class RandomDropManager {
 			initItemPool();
 		}
 
-		Item item = itemPool.get(random.nextInt(itemPool.size()));
+		List<Item> available = itemPool.stream()
+			.filter(item -> !usedItems.contains(item))
+			.toList();
+
+		if (available.isEmpty()) {
+			available = itemPool;
+		}
+
+		Item item = available.get(random.nextInt(available.size()));
+		usedItems.add(item);
 
 		int range = Math.max(1, maxCount - minCount + 1);
 		int count = minCount + random.nextInt(range);

@@ -15,7 +15,7 @@
         },
         "intermediate_mappings": "net.fabricmc:intermediary",
         "entrypoints": {
-            "init": "net.quiltmc.users.malythist.randomdrops.Randomdrops"
+            "init": "net.quiltmc.users.malythist.randomdrops.RandomDropsMod"
         },
         "depends": [
             {

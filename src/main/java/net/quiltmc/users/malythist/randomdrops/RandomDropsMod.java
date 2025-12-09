@@ -1,6 +1,5 @@
 package net.quiltmc.users.malythist.randomdrops;
 
-
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -47,7 +46,7 @@ public class RandomDropsMod implements ModInitializer {
 					.executes(ctx -> {
 						DROP_MANAGER.setActive(true);
 						ctx.getSource().sendFeedback(
-							() -> Text.literal("Random Drops: случайный дроп включен"),
+							() -> Text.literal("RandomDrops: случайный дроп включен"),
 							false
 						);
 						return 1;
@@ -56,7 +55,7 @@ public class RandomDropsMod implements ModInitializer {
 					.executes(ctx -> {
 						DROP_MANAGER.setActive(false);
 						ctx.getSource().sendFeedback(
-							() -> Text.literal("Random Drops: случайный дроп выключен"),
+							() -> Text.literal("RandomDrops: случайный дроп выключен"),
 							false
 						);
 						return 1;
@@ -66,9 +65,9 @@ public class RandomDropsMod implements ModInitializer {
 						.then(CommandManager.argument("value", IntegerArgumentType.integer(1))
 							.executes(ctx -> {
 								int value = IntegerArgumentType.getInteger(ctx, "value");
-								RandomDropsMod.DROP_MANAGER.setMinCount(value);
-								int min = RandomDropsMod.DROP_MANAGER.getMinCount();
-								int max = RandomDropsMod.DROP_MANAGER.getMaxCount();
+								DROP_MANAGER.setMinCount(value);
+								int min = DROP_MANAGER.getMinCount();
+								int max = DROP_MANAGER.getMaxCount();
 								ctx.getSource().sendFeedback(
 									() -> Text.literal("RandomDrops: min=" + min + ", max=" + max),
 									false
@@ -79,9 +78,9 @@ public class RandomDropsMod implements ModInitializer {
 						.then(CommandManager.argument("value", IntegerArgumentType.integer(1))
 							.executes(ctx -> {
 								int value = IntegerArgumentType.getInteger(ctx, "value");
-								RandomDropsMod.DROP_MANAGER.setMaxCount(value);
-								int min = RandomDropsMod.DROP_MANAGER.getMinCount();
-								int max = RandomDropsMod.DROP_MANAGER.getMaxCount();
+								DROP_MANAGER.setMaxCount(value);
+								int min = DROP_MANAGER.getMinCount();
+								int max = DROP_MANAGER.getMaxCount();
 								ctx.getSource().sendFeedback(
 									() -> Text.literal("RandomDrops: min=" + min + ", max=" + max),
 									false
