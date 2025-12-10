@@ -1,5 +1,7 @@
 ## This mod makes all drops from breakable blocks random and multiplied. Inspired by Dream's video series!
 
+[Modrinth Link](https://modrinth.com/mod/random-dropz)
+
 ### Installation:
 
 1. Required [quilt modloader](https://quiltmc.org/en/), quilt loader must be >= 0.19.1
